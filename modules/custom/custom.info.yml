@@ -1,7 +1,0 @@
-name: Cutstom
-description: "Custom module by SRA."
-package: 'Custom'
-type: module
-core: 8.x
-version: '8.x-1.0'
-project: 'custom'
