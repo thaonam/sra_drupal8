@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% if current_page == 'user_profile' %}
     <div class="profile-wrapper">
         <aside class="main-sidebar">
@@ -66,12 +67,92 @@
                 </div>
             </div>
             <div class="content-wrapper">
+=======
+<header id="navbar" role="banner" class="navbar-wrap">
+    <div class="main-banner container clearfix">
+        <div class="navbar-header nop col-sm-2 col-xs-4">
+            {% if logo %}
+                <div class="logo left">
+                    <a class="logo navbar-btn pull-left" href="{{ front_page }}" title="{{ 'Home'|t }}">
+                        <img src="{{ logo }}" alt="{{ 'Home'|t }}" />
+                    </a>
+                </div>
+            {% endif %}
+            {# End logo #}
+        </div>
+
+        <div id="navi" class="navi nop col-sm-10 col-xs-8">
+            <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {% if page.navigation %}
+                <div class="navbar-collapse collapse main-nav">
+                    <nav role="navigation">
+                        <div class="fr"> {{ page.navigation }}</div>
+                    </nav>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</header><!-- /#navbar -->
+
+{% if page.highlighted %}
+    <div id="highlighted" class="highlighted">
+        {{ page.highlighted }}
+    </div>
+{% endif %}
+
+<div class="main-container {% if current_page == 'user_profile' %} {% else %} container {% endif %}">
+
+    {% if current_page == 'user_profile' %}
+        <div class="profile-wrapper">
+            <aside class="main-sidebar">
+                <!-- sidebar: style can be found in sidebar.less -->
+                <section class="sidebar" style="height: auto;">
+                    <div class="info_user">
+                        <div class="avatar"> {% if account_picture %}<img src="{{ account_picture }}"alt="">  {% endif %}</div>
+                        <div class="full_name">{% if account_name %} {{ account_name }}{% endif %}</div>
+                        <div class="email">{% if account_email %} {{ account_email }}{% endif %}</div>
+                    </div>
+                    {% if page.sidebar_first %} {% block sidebar_first %}
+                        <aside id="sidebar-left" class="" role="complementary">
+                            {{ page.sidebar_first }}
+                        </aside>
+                    {% endblock %}  {% endif %}
+                </section>
+                <!-- /.sidebar -->
+            </aside>
+            <div class="content-wrapper" style="min-height: 926px;">
+                <div class="navbar navbar-static-top header-content">
+                    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                        <svg aria-hidden="true" focusable="false" data-prefix="fal" data-icon="bars" role="img"
+                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
+                             class="svg-inline--fa fa-bars fa-w-14 fa-2x">
+                            <path fill="currentColor"
+                                  d="M442 114H6a6 6 0 0 1-6-6V84a6 6 0 0 1 6-6h436a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6zm0 160H6a6 6 0 0 1-6-6v-24a6 6 0 0 1 6-6h436a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6zm0 160H6a6 6 0 0 1-6-6v-24a6 6 0 0 1 6-6h436a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6z"
+                                  class=""></path>
+                        </svg>
+                        <span class="sr-only">Toggle navigation</span>
+                    </a>
+                    <div class="menu-header-right">
+                        <ul class="menu">
+                            <li><a href="/user/logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+                        </ul>
+                    </div>
+                </div>
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
                 <a id="main-content"></a>
                 {% if page.breadcrumb %}
                     <div id="breadcrumb" class="breadcrumb">
                         {{ page.breadcrumb }}
                     </div>
                 {% endif %}
+<<<<<<< HEAD
                 {% if current_page_user == 'page_user' %}
                     {{ drupal_view('node_functions', 'block_23') }}
                 {% else %}
@@ -128,6 +209,14 @@
         <div class="row">
             <section id="main-front"
                      class=" {% if page.sidebar_second %} col-sm-8 {% else %} col-md-12 {% endif %} ">
+=======
+                {{ page.content }}
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <section id="main-front" class=" {% if page.sidebar_second %} col-sm-8 {% else %} col-md-12 {% endif %} ">
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
                 <a id="main-content"></a>
                 {% if page.breadcrumb %}
                     <div id="breadcrumb" class="breadcrumb">
@@ -145,6 +234,7 @@
             {% endblock %}  {% endif %}
 
         </div>
+<<<<<<< HEAD
     </div>
 
     {% if page.before_footer %}
@@ -171,10 +261,43 @@
                                href="/content/join-our-interest-groups-0">Join Our Interest
                                 Groups<i class="fa fa-chevron-right" aria-hidden="true"></i></a>
                         </div>
+=======
+    {% endif %}
+</div>
+
+{% if page.before_footer %}
+    <div id="before-footer" class="before-footer clearfix">
+        <div class="container">
+            {{ page.before_footer }}
+        </div>
+    </div>
+{% endif %}
+
+<footer class="footer">
+    <div class="container">
+        {{ page.footer }}
+        <div id="copyright">
+            <div class="copyright clearfix">
+                <div class="left fl">Copyright &copy; {{ "now"|date("Y") }} The Singapore Reinsurers' Association. All
+                    rights reserved. <a href="/privacy-policy" style="color: #d6d6d6; margin-left: 3px;"> I Privacy
+                        Policy</a></div>
+
+                <div class="right">
+                    <div class="right fr"> {{ page.copyrights }}</div>
+                    <div class="block-join">
+                        <a class="btn btn-white" href="/content/join-our-interest-groups-0">Join Our Interest Groups<i
+                                    class="fa fa-chevron-right" aria-hidden="true"></i></a>
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
                     </div>
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
 
     </footer>
 {% endif %}
+=======
+    </div>
+
+</footer>
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83

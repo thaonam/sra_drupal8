@@ -76,7 +76,11 @@
 <article{{ attributes.addClass(classes) }}>
 
   <div{{ content_attributes.addClass('content') }}>
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
     <div class="member_companies-logo">
       {% if node.field_image is not empty %}
       {{ content.field_image }}
@@ -85,7 +89,11 @@
     <table>
       <tbody>
         {% if node.field_sra_member_since is not empty %}
+<<<<<<< HEAD
         <tr>
+=======
+         <tr>
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
           <td style="width:40%;">SRA Member Since:</td>
           <td> {{content.field_sra_member_since}} </td>
         </tr>
@@ -130,8 +138,12 @@
         <tr>
           <td style="width:40%;">Web URL:</td>
           <td>
+<<<<<<< HEAD
             <a href="{{ content.field_website_link['0']['#context']['value']}}"
               target="_blank">{{content.field_website_link}}</a>
+=======
+            <a href="{{ content.field_website_link['0']['#context']['value']}}" target="_blank">{{content.field_website_link}}</a>
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
           </td>
         </tr>
         {% endif %}
@@ -146,8 +158,14 @@
         -->
       </tbody>
     </table>
+<<<<<<< HEAD
     </div>
     {% if renewal_check == true %}
       {{ drupal_form('Drupal\\custom\\Form\\RenewMembershipForm', node) }}
     {% endif %}
     </article>
+=======
+  </div>
+
+</article>
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83

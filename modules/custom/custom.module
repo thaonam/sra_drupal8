@@ -293,7 +293,6 @@ function custom_preprocess_webform_submission_data(array &$variables) {
   $address = $webform_submission->getData()['address'];
   $name_designation = $webform_submission->getData()['name_designation'];
   $logo = $base_url . '' . file_url_transform_relative(file_create_url(theme_get_setting('logo.url')));
-
   $content_submission = array(
     'full_name_of_company' => $full_name_of_company,
     'company_registration_no' => $company_registration_no,

@@ -11,6 +11,7 @@ function sra_preprocess_page(&$variables) {
   $variables['logo'] = file_url_transform_relative(file_create_url(theme_get_setting('logo.url')));
   
   // $variables['arg_url_2'] = arg(2);
+<<<<<<< HEAD
   $current_path = \Drupal::service('path.current')->getPath();
   $path_args = explode('/', $current_path);
   // && (!empty($path_args[3]) && $path_args[3] != 'edit')
@@ -26,6 +27,14 @@ function sra_preprocess_page(&$variables) {
   elseif ($path_args[1] == 'node' && !empty($path_args[2]) && $path_args[2] == 'add' && !empty($path_args[3]) && $path_args[3] == 'announcement') {
     $variables['#attached']['library'][] = 'sra/profile-styling';
   }
+=======
+    $current_path = \Drupal::service('path.current')->getPath();
+    $path_args = explode('/', $current_path);
+    // && (!empty($path_args[3]) && $path_args[3] != 'edit')
+    if($path_args[1] == 'user'  ) {
+        $variables['#attached']['library'][] = 'sra/profile-styling';
+    }
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
 }
 
 /**
@@ -82,6 +91,7 @@ function sra_preprocess_views_view_unformatted(&$vars) {
         $i++;
         foreach ($taxonomy->loadChildren($term->tid) as $tid => $term_child) {
           
+<<<<<<< HEAD
           $arr_temr_child[] = array(
             "id" => $tid,
             "name" => $term_child->get('name')->value,
@@ -96,14 +106,37 @@ function sra_preprocess_views_view_unformatted(&$vars) {
           "id" => $term->tid,
           "name" => $term->name,
           'class' => str_replace(array(' / ', ' '), '-', strtolower($term->name)),
+=======
+          $arr_temr_child[] = array (
+            "id" => $tid,
+            "name" => $term_child->get('name')->value,
+            'field_iso_code' => strtolower($term_child->get('field_iso_code')->value),
+            'class' => str_replace(array (' / ', ' '), '-', strtolower($term_child->get('name')->value)),
+          );
+          $vars['arr_temr_child'] = $arr_temr_child;
+        }
+        $arr_temr_child = array ();
+        
+        $term_parents_data[] = array (
+          "id" => $term->tid,
+          "name" => $term->name,
+          'class' => str_replace(array (' / ', ' '), '-', strtolower($term->name)),
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
           'terms' => $vars['arr_temr_child'],
         );
         $vars['arr_term_country'] = $term_parents_data;
       }
+<<<<<<< HEAD
       $region = array();
       $comment = array();
       $comment2 = array();
       $arr_field = array();
+=======
+      $region = array ();
+      $comment = array ();
+      $comment2 = array ();
+      $arr_field = array ();
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
       foreach ($rows as $row) {
         foreach ($row['content']['#row']->_entity->getFields()['field_region_country']->getValue() as $term) {
           $region[] = $term['target_id'];
@@ -119,9 +152,15 @@ function sra_preprocess_views_view_unformatted(&$vars) {
         $arr_field{$row['content']['#row']->_entity->id()}['#arr_region'] = $region;
         $arr_field{$row['content']['#row']->_entity->id()}['#arr_comment'] = $comment;
         $arr_field{$row['content']['#row']->_entity->id()}['#arr_comment2'] = $comment2;
+<<<<<<< HEAD
         $region = array();
         $comment = array();
         $comment2 = array();
+=======
+        $region = array ();
+        $comment = array ();
+        $comment2 = array ();
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
       }
       $vars['row_field'] = $arr_field;
     }
@@ -142,8 +181,13 @@ function sra_preprocess_views_view_unformatted(&$vars) {
       else {
         $vars['is_check_roles'] = $roles = 0;
       }
+<<<<<<< HEAD
       $results = array();
       $row_item = array();
+=======
+      $results = array ();
+      $row_item = array ();
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
       foreach ($rows as $row) {
         foreach ($row['content']['#row']->_entity->getFields() as $key => $row_field) {
           if (!empty($row_field->getValue()[0]['target_id'])) {
@@ -162,7 +206,11 @@ function sra_preprocess_views_view_unformatted(&$vars) {
         
         $results{$row['content']['#row']->_entity->getFields()['field_committee']->getValue()[0]['target_id']}['label'] = $committee_entity->getName();
         $results{$row['content']['#row']->_entity->getFields()['field_committee']->getValue()[0]['target_id']}[] = $row_item;
+<<<<<<< HEAD
         $row_item = array();
+=======
+        $row_item = array ();
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83
       }
       
       $vars['results'] = $results;

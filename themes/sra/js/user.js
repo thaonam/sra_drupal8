@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 (function ($, Drupal, drupalSettings) {
 
   'use strict';
@@ -23,3 +24,21 @@ jQuery(document).ready(function () {
     });
   });
 });
+=======
+(function($, Drupal, drupalSettings) {
+    
+    'use strict';
+    
+    Drupal.behaviors.mybehavior = {
+        attach: function(context, settings) {
+            /*Toggle Menu Left*/
+            let slide_toggle = $('.header-content .sidebar-toggle');
+            slide_toggle.once().click(function() {
+                $('.profile-wrapper').toggleClass('open');
+            });
+            
+        }
+    };
+    
+})(jQuery, Drupal, drupalSettings);
+>>>>>>> eaf061d6c2ee98e2c74004a332853f594a80da83

@@ -46,8 +46,7 @@ class ResponseSubscriber implements EventSubscriberInterface {
  * @param FilterResponseEvent $event
  *   The route building event.
  */
-public
-function alterResponse(FilterResponseEvent $event) {
+public function alterResponse(FilterResponseEvent $event) {
   // if ($event->getResponse()->getStatusCode() == 403) {
   dsm($event);
   /** @var \Symfony\Component\HttpFoundation\Request $request */
