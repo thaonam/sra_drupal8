@@ -1,0 +1,286 @@
+<style type="text/css">
+  .user-logged-in:not(.path-custom) .invoice--wrapper {
+    display: none;
+  }
+
+
+  p {
+    margin-bottom: 0
+  }
+
+  .logo {
+    text-align: center;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .logo img {
+    width: 100px;
+  }
+
+  .invoice--text-bold {
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .invoice--wrapper {
+    font-size: 10px;
+  }
+
+  .invoice--title {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+
+  .invoice--table-1 {
+    width: 100%;
+  }
+
+  .invoice--table-1 tr td:first-child div {
+    font-size: 11.2px;
+  }
+
+  .invoice--table-1 tr:first-child td:first-child {
+    width: 45%;
+  }
+
+  .invoice--table-1 tr:first-child td:nth-child(2) {
+    width: 15%;
+  }
+
+  .invoice--table-1 tr:first-child td:last-child {
+    width: 40%;
+  }
+
+  .invoice--table-1 tr:not(:first-child) td:first-child {
+    width: 20%;
+  }
+
+  .invoice--table-1 td:last-child {
+    font-size: 13px;
+  }
+
+  .invoice--table-1 td span {
+    font-size: 10.5px;
+  }
+
+  .invoice--table-2 {
+    margin-top: 10px;
+    border: 2px solid #333;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .invoice--table-2 th, .invoice--table-2 td {
+    padding: 2px 10px;
+    font-size: 11px;
+  }
+
+  .invoice--table-2 tr:first-child th {
+    height: 20px;
+    text-align: center;
+    border: 2px solid #333;
+    border-collapse: collapse;
+  }
+
+  .invoice--table-2 tr:first-child th:first-child, .invoice--table-2 td:first-child {
+    width: 70%;
+  }
+
+  .invoice--table-2 tr:first-child th:last-child, .invoice--table-2 td:last-child {
+    width: 30%;
+  }
+
+  .invoice--table-2 td:first-child {
+    text-align: left;
+  }
+
+  .invoice--table-2 td:last-child {
+    text-align: right;
+  }
+
+  .invoice--table-2 tr:nth-child(2) td:first-child {
+    /*padding: 10px;*/
+  }
+
+  .invoice--table-2 tr:last-child td:first-child {
+    text-align: left;
+  }
+
+  .invoice--table-2 tr:last-child td:last-child {
+    width: 30%;
+    height: 10px;
+    border: 1px solid #333;
+    border-collapse: collapse;
+  }
+
+  .col-number {
+    width: 25px;
+    text-align: center;
+    font-weight: 600;
+    position: absolute;
+  }
+
+  .col-text {
+    margin-left: 30px;
+    font-size: 11.2px !important;
+  }
+
+  .payment-info {
+    display: flex;
+    position: relative;
+    margin-bottom: 5px;
+  }
+
+  .section--payment {
+    border: 2px solid #333;
+    margin-bottom: 35px;
+    padding: 0;
+  }
+
+
+</style>
+<div class="invoice--wrapper" style="font-size: 13px">
+  {% if items.logo %}
+    <div class="logo" style="text-align: center; margin-bottom: 10px; margin-top: -20px;">
+      <img src="{{ items.logo }}" alt="{{ 'Home'|t }}"/>
+    </div>
+  {% endif %}
+  <div class="invoice--title">TAX INVOICE</div>
+  <table class="invoice--table-1" style=" width: 100%;">
+    <tr>
+      <td rowspan="3" style="width: 45%;">
+        <div><span class="invoice--text-bold">To:</span> <span>{{ items.full_name_of_company }}</span>
+        </div>
+        <div>Attention:{{ items.name_designation }}</div>
+        <div>{{ items.address }}</div>
+      </td>
+      <td style="width: 15%;"></td>
+      <td style="width: 40%; "><span class="invoice--text-bold">Tax Invoice No:</span>
+        <span>{{ items.company_registration_no }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="width: 20%;"></td>
+      <td>
+        <span class="invoice--text-bold">Date:</span>
+        <span>{{ items.date_of_incorporation_of_company }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td width="20%"></td>
+      <td>
+        <span class="invoice--text-bold">Payment Due:</span>
+        <span>27 Apr 2019</span>
+      </td>
+    </tr>
+  </table>
+  <table class="invoice--table-2">
+    <tr>
+      <th>PARRTICULARS</th>
+      <th>AMOUNT(SGD)</th>
+    </tr>
+    <tr>
+      <td style="padding: 10px 15px;width: 70%;">Ordinary Member Annual Subscription Fee for 2019 <br>(January to December)
+      </td>
+      <td style="border: 1px solid #333;border-left-width: 2px;border-collapse: collapse;text-align: right">3,000.00
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td style="padding: 3px 10px;border-left: 1px solid #333;border-left-width: 2px;vertical-align:middle;border-collapse: collapse;text-align: right">3,000.00</td>
+    </tr>
+    <tr>
+      <td style="padding: 3px 10px;width: 70%;text-align: right">Total GST @7%</td>
+      <td style="border-left: 2px solid #333; vertical-align:middle;border-collapse: collapse;text-align: right">210.00</td>
+    </tr>
+    <tr>
+      <td style="width: 70%;"></td>
+      <td style="border: 1px solid #333; border-left-width: 2px;padding: 3px 10px;vertical-align:middle; border-collapse: collapse;text-align: right"><strong>3,210.00</strong></td>
+    </tr>
+    <tr>
+      <td style="border-right: 1px solid #333; width: 70%;"></td>
+      <td style="height: 10px; border: 1px solid #333; border-left-width: 2px;border-collapse: collapse;"></td>
+    </tr>
+  </table>
+  <div class="invoice--text-1" style="margin-bottom:5px"><strong><i style="font-size: 10px">E. & O.E.</i></strong></div>
+
+  <div style="margin-bottom: 10px;text-align: center; display: block; font-weight: 600;">This is a computer generated invoice. No signature is required</div>
+  <div class="section--payment">
+    <div class="payment-title" style="margin-left: 10px; margin-bottom: 6px; font-weight: 600;"><span style="border-bottom: 1px solid #333;">PAYMENT OPTIONS</span></div>
+    <div class="payment-info">
+      <div class="col-number">1.</div>
+      <div class="col-text">
+        <div style="font-weight: 600;">Cheque</div>
+        <div>Cheques should be crossed and made payable to<strong>SINGAPORE REINSURERS’ ASSOCIATION</strong>.</div>
+        <div>Please clearly indicate “<strong>Invoice Number</strong>” on the back of the cheque and mail to:</div>
+        <div style="width:400px;margin-left: 40px">Singapore Reinsurers’ Association<br> 180 Cecil Street #16-04 Bangkok Bank Building <br>Singapore 069546</div>
+      </div>
+    </div>
+    <div class="payment-info">
+      <div class="col-number">2.</div>
+      <div class="col-text">
+        <div style="font-weight: 600;">Bank Transfer</div>
+        <div>Full invoiced amount should be remitted to:</div>
+        <table width="400px">
+          <tr>
+            <td style="width:160px">
+              <div style="display:flex;">Account Name
+                <div style="text-align: right;margin-left: auto;">:</div>
+              </div>
+            </td>
+            <td style="padding-left: 5px">Singapore Reinsure's Asociation</td>
+          </tr>
+          <tr>
+            <td style="width: 160px">
+              <div style="display:flex;">Bank Name
+                <div style="text-align: right;margin-left: auto;">:</div>
+              </div>
+            </td>
+            <td style="padding-left: 5px">DBS Bank Ltd</td>
+          </tr>
+          <tr>
+            <td style="width: 160px">
+              <div style="display:flex;">Bank Address
+                <div style="text-align: right;margin-left: auto;">:</div>
+              </div>
+            </td>
+            <td style="padding-left: 5px">12 Marina Boulevard Marina Bay Financial Centre Tower 3 Singapore 018982</td>
+          </tr>
+          <tr>
+            <td style="width: 160px">
+              <div style="display:flex;">Bank Account Number
+                <div style="text-align: right;margin-left: auto;">:</div>
+              </div>
+            </td>
+            <td style="padding-left: 5px"> 001-005631-0</td>
+          </tr>
+          <tr>
+            <td style="width: 160px ">
+              <div style="display:flex;">Bank / Branch / Swift code
+                <div style="text-align: right;margin-left: auto;">:</div>
+              </div>
+            </td>
+            <td style="padding-left: 5px"> 7171 / 001 / DBSSSGSG</td>
+          </tr>
+        </table>
+        <strong>All bank charges are to be borne by the remitter.</strong>
+        <div>Please indicate “Invoice Number” on Remittance Advice and send a copy to SRA for reconciliation.</div>
+      </div>
+    </div>
+    <div class="payment-info">
+      <div class="col-number">3.</div>
+      <div class="col-text">
+        <strong>Credit Card</strong>
+        <div>Please contact the Secretariat via email: secretariat@sg-reinsurers.org.sg or call +65 6805 0760 for assistance.</div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align: center">
+    <strong>SINGAPORE REINSURERS’ ASSOCIATION</strong>
+    <div>180 Cecil Street #16-04 Bangkok Bank Building, Singapore 069546</div>
+    <div>Tel: +65 6805 0760 | Fax: +65 6805 0769</div>
+    <div>Email: secretariat@sg-reinsurers.org.sg | Website:www.sg-reinsurers.org.sg</div>
+    <div>UEN: S79SS0015L | GST Registration No.: M90372633R</div>
+  </div>
+</div>

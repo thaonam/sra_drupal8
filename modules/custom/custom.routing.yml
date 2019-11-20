@@ -1,0 +1,19 @@
+custom.submission_template_pdf:
+  path: '/custom/approve/submision/{submission_id}'
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_submission_template_pdf'
+  requirements:
+    _permission: 'access content'
+custom.submission_send_email:
+  path: '/custom/submission_send_mail/{submission_id}'
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_submission_send_mail'
+  requirements:
+    _permission: 'access content'
+custom.profile_user:
+  path: 'user/profile'
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_profile_user'
+    _title: 'Profile User'
+  requirements:
+    _permission: 'access content'

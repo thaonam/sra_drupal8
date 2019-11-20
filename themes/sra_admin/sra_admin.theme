@@ -1,0 +1,18 @@
+<?php
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function sra_admin_preprocess_html(&$variables) {
+  $path = \Drupal::service('path.current')->getPath();
+  $path_args = explode('/', $path);
+  if (isset($path_args[1]) && isset($path_args[2]) && ($path_args[1] == 'node') && (is_numeric($path_args[2]))) {
+    $variables['attributes']['class'][] = 'page-node-' . $path_args[2];
+  }
+  elseif (isset($path_args[3]) && $path_args[3] == 'webform') {
+    $variables['attributes']['class'][] = 'page-' . $path_args[5];
+  }
+  else {
+    $variables['attributes']['class'][] = 'page-' . join('-', $path_args);
+    
+  }
+}
