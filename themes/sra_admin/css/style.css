@@ -1,0 +1,34 @@
+.form-item-payment-amount.js-form-item-payment-amount.form-group:before {
+  content:  '$';
+  position: absolute;
+  bottom: 7px;
+  left: 10px;
+  font-size: 14px;
+}
+.form-item-payment-amount.js-form-item-payment-amount .field-prefix{
+  position: absolute;
+  bottom: 5px;
+  left: 10px;
+  font-size: 14px;
+}
+.form-item-payment-amount.js-form-item-payment-amount {
+  position: relative;
+}
+
+.form-item-payment-amount.js-form-item-payment-amount input {
+  height: 30px;
+  padding: 0.3em 0.4em 0.3em 0.5em;
+  padding-left: 22px!important;
+  font-size: 13px;
+}
+div#edit-signature-company-stamp--description {
+  display: none;
+}
+.form-item-payment-amount.js-form-item-payment-amount {font-size: 0;}
+
+.form-item-payment-amount.js-form-item-payment-amount label {
+  font-size: 14px;
+}
+.form-type-date.js-form-type-date {
+  position: relative;
+}

@@ -1,0 +1,65 @@
+{#
+/**
+ * @file
+ * Theme override for a main view template.
+ *
+ * Available variables:
+ * - attributes: Remaining HTML attributes for the element.
+ * - css_name: A css-safe version of the view name.
+ * - css_class: The user-specified classes names, if any.
+ * - header: The optional header.
+ * - footer: The optional footer.
+ * - rows: The results of the view query, if any.
+ * - empty: The content to display if there are no rows.
+ * - pager: The optional pager next/prev links to display.
+ * - exposed: Exposed widget form/info to display.
+ * - feed_icons: Optional feed icons to display.
+ * - more: An optional link to the next page of results.
+ * - title: Title of the view, only used when displaying in the admin preview.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the view title.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the view title.
+ * - attachment_before: An optional attachment view to be displayed before the
+ *   view content.
+ * - attachment_after: An optional attachment view to be displayed after the
+ *   view content.
+ * - dom_id: Unique id for every view being printed to give unique class for
+ *   Javascript.
+ *
+ * @see template_preprocess_views_view()
+ */
+#}
+{%
+  set classes = [
+  'view',
+  'view-' ~ id|clean_class,
+  'view-id-' ~ id,
+  'view-display-id-' ~ display_id,
+  dom_id ? 'js-view-dom-id-' ~ dom_id,
+]
+%}
+<div {{ attributes.addClass(classes) }}>
+<div class="tabs company-tabs">
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#Association" aria-controls="Ordinary Members" role="tab" data-toggle="tab">Industry Association</a></li>
+    <li role="presentation"><a href="#Authorities" aria-controls="Affiliate Members" role="tab" data-toggle="tab">Regulatory Authorities</a></li>
+    <li role="presentation"><a href="#Institutions" aria-controls="Honorary Members" role="tab" data-toggle="tab">Professional & Training Institutions</a></li>
+    <li role="presentation"><a href="#Insurance" aria-controls="Honorary Members" role="tab" data-toggle="tab">Other Insurance Sites</a></li>
+  </ul>
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="Association">
+      {{ drupal_view('node_functions', 'block_16') }}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Authorities">
+      {{ drupal_view('node_functions', 'block_17') }}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Institutions">
+      {{ drupal_view('node_functions', 'block_18') }}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Insurance">
+      {{ drupal_view('node_functions', 'block_19') }}
+    </div>
+  </div>
+</div>
+</div>

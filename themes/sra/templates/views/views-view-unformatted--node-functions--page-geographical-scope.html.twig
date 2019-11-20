@@ -1,0 +1,116 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a view of unformatted rows.
+ *
+ * Available variables:
+ * - title: The title of this group of rows. May be empty.
+ * - rows: A list of the view's row items.
+ *   - attributes: The row's HTML attributes.
+ *   - content: The row's content.
+ * - view: The view object.
+ * - default_row_class: A flag indicating whether default classes should be
+ *   used on rows.
+ *
+ * @see template_preprocess_views_view_unformatted()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if title %}
+  <h3>{{ title }}</h3>
+{% endif %}
+<div class="main-geographical ">
+  <div class="xs-control">
+    <span class="active-link"></span>
+    <ul class="nav nav-tabs" role="tablist">
+      {% for  keys, term in arr_term_country %}
+        <li role="presentation" class="{% if keys == 0 %}active{% endif %}">
+          <a href="#tab-{{ keys }}" class="{{ term.class }}" aria-controls="tab-{{ keys }}" role="tab" data-toggle="tab">{{ term.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  {% for  keys, term in arr_term_country %}
+    <div role="tabpanel" class="tab-pane {% if keys == 0 %}active{% endif %}" id="tab-{{ keys }}">
+      <table class="table-geographical">
+        <thead>
+        <tr>
+          <th class="even first" width="130"></th>
+          {% for key , term_country in term.terms %}
+            <th class="{% if (key % 2 )== 0 %}old {% else %}even{% endif %}" width="" title="{{ term_country.name }}">
+              <div class="country-flag">
+                <img src="/sites/all/themes/sra/images/flags/{{ term_country.field_iso_code }}.png" alt="{{ term_country.field_iso_code }}">
+              </div>
+              <p>{{ term_country.field_iso_code }}</p>
+            </th>
+          {% endfor %}
+          <th class="remark last">Remark</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="even"><strong>Companies</strong></td>
+          {% for key, term_country in term.terms %}
+            <td class="{% if (key % 2 )== 0 %}old {% else %}even{% endif %}"></td>
+          {% endfor %}
+          <td class="remark last {% if (term.terms|length % 2 == 0) %} old {% else %} even {% endif %}"></td>
+        </tr>
+        {#---tr first--#}
+        {#------------------------------#}
+
+        {% for row in rows %}
+          {% set row_classes = [
+            default_row_class ? 'views-row',
+          ] %}
+          <tr>
+            <td{{ row.attributes.addClass(row_classes) }}>
+              {{ row.content['#row']._entity.title.value }}
+            </td>
+            {#------end td first--------#}
+
+            {% for key , term_country in term.terms %}
+
+              <td class="{% if (key % 2 )== 0 %}old {% else %}even{% endif %}">
+                <span class="re-item {% if term_country['id'] in row_field[row.content['#row']._entity.nid.value]['#arr_region'] %}
+                    active
+                    {% if term_country['id'] in row_field[row.content['#row']._entity.nid.value]['#arr_comment']|keys %}
+                      {% set comment2 = row_field[row.content['#row']._entity.nid.value]['#arr_comment'][ term_country['id'] ] %}
+                      {% else %}
+                      {% set comment2 = '' %}
+                    {% endif %}
+                    {% if comment2 is not empty %}
+                      has-comment
+                    {% endif %}
+                  {% endif %}">
+               {% if term_country['id'] in row_field[row.content['#row']._entity.nid.value]['#arr_region'] %}
+                 <img style="    position: absolute; left: 50%; margin-left: -5px; right: 0; top: 50%; margin-top: -4px; bottom: 0; z-index: -1;" src="/sites/all/themes/sra/images/tick.png"/>
+                     {% if term_country['id'] in row_field[row.content['#row']._entity.nid.value]['#arr_comment']|keys %}
+                 {{ row_field[row.content['#row']._entity.nid.value]['#arr_comment'][term_country['id']] }}
+               {% endif %}
+                  {% else %}
+                 <img style="    position: absolute; left: 50%; margin-left: -5px; right: 0; top: 50%; margin-top: -4px; bottom: 0; z-index: -1;" src="/sites/all/themes/sra/images/wrong.png"/>
+               {% endif %}
+
+                </span>
+
+              </td>
+
+            {% endfor %}
+            <td class="remark last {% if (term.terms|length % 2 == 0) %} old {% else %} even {% endif %}">
+              {{ row.content['#row']._entity.field_remark.value }}
+            </td>
+
+          </tr>
+
+        {% endfor %}
+        {#------------------------------#}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+</div>

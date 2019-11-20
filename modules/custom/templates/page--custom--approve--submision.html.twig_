@@ -1,0 +1,8 @@
+{% if logo %}
+  <div class="header-logo" style="text-align: center;">
+    <a class="logo" href="{{ front_page }}" title="{{ 'Home'|t }}">
+      <img src="{{ logo }}" alt="{{ 'Home'|t }}"/>
+    </a>
+  </div>
+{% endif %}
+

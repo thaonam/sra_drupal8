@@ -1,0 +1,30 @@
+# SRA project.
+name: Sg-Reinsurers
+type: theme
+base theme: bootstrap
+
+description: 'A special theme made for Sg-reinsurers'
+
+package: Homeflow
+version: VERSION
+project: 'SRA'
+core: 8.x
+
+libraries:
+  - sra/global-styling
+  - sra/global-scripts
+
+regions:
+  navigation: Navigation
+  top_bar: Top bar
+  highlighted: Highlighted
+  breadcrumb: Breadcrumb
+  front_content: Front Content
+  content: Content
+  sidebar_first: Primary
+  sidebar_second: Secondary
+  before_footer: Above Footer
+  footer: Footer
+  copyrights: Copyrights
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
