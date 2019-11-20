@@ -1,0 +1,75 @@
+<header id="navbar" role="banner" class="navbar-wrap  {% if role_access == 'admin' %} role-admin {% endif %}">
+  <div class="main-banner container clearfix">
+    <div class="navbar-header nop col-sm-2 col-xs-4">
+      {% if logo %}
+        <div class="logo left">
+          <a class="logo navbar-btn pull-left" href="{{ front_page }}" title="{{ 'Home'|t }}">
+            <img src="{{ logo }}" alt="{{ 'Home'|t }}"/>
+          </a>
+        </div>
+      {% endif %}
+      {# End logo #}
+    </div>
+
+    <div id="navi" class="navi nop col-sm-10 col-xs-8">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      {% if page.navigation %}
+        <div class="navbar-collapse collapse main-nav">
+          <nav role="navigation">
+            <div class="fr"> {{ page.navigation }}</div>
+          </nav>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</header><!-- /#navbar -->
+{% if page.highlighted %}
+  <div id="highlighted" class="highlighted">
+    {{ page.highlighted }}
+  </div>
+{% endif %}
+
+<div class="main-container container">
+  {# <div class="row"> #}
+    <section id="main-front" class="">
+
+      <a id="main-content"></a>
+      {{ page.front_content }}
+      {% if page.before_footer %}
+        <div id="before-footer" class="before-footer clearfix">
+          <div class="">
+            {{ page.before_footer }}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+  {# </div> #}
+</div>
+
+<footer class="footer">
+  <div class="container">
+    {{ page.footer }}
+     <div id="copyright">
+      <div class="copyright clearfix">
+        <div class="left fl">Copyright &copy; {{ "now"|date("Y") }} The Singapore Reinsurers' Association. All rights reserved.</div>
+         <div class="right"> 
+          <div class="right fr"> {{ page.copyrights }}</div>
+          <div class="block-join">
+            <a class="btn btn-white" href="/content/join-our-interest-groups-0">Join Our Interest Groups<i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="position-fixed">
+  {{ drupal_entity('block', 'floatingsocialblock') }}
+  </div>
+</footer>

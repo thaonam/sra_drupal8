@@ -1,0 +1,14 @@
+name: Custom Redirect After Login
+description: 'Custom Redirect user after login to a configured url '
+package: Login Redirection
+type: module
+# version: 2.0
+# core: 8.x
+configure: custom_redirect_after_login.admin_settings
+
+  
+# Information added by Drupal.org packaging script on 2019-03-18
+version: '8.x-2.5'
+core: '8.x'
+project: 'redirect_after_login'
+datestamp: 1552929187

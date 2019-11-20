@@ -1,0 +1,171 @@
+<?php
+
+use Drupal\paragraphs\Entity\Paragraph;
+
+function sra_preprocess_page(&$variables) {
+  $site_config = \Drupal::config('system.site');
+  $variables['site_name'] = $site_config->get('name');
+  $variables['site_slogan'] = $site_config->get('slogan');
+  
+  // logo needs to be placed within specified folder
+  $variables['logo'] = file_url_transform_relative(file_create_url(theme_get_setting('logo.url')));
+  
+  // $variables['arg_url_2'] = arg(2);
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_args = explode('/', $current_path);
+  // && (!empty($path_args[3]) && $path_args[3] != 'edit')
+  if ($path_args[1] == 'user') {
+    $variables['#attached']['library'][] = 'sra/profile-styling';
+  }
+  elseif ($path_args[1] == 'node' && is_numeric($path_args[2]) && \Drupal\node\Entity\Node::load($path_args[2])->type->entity->get('type') == 'member_companies' && !empty($path_args[3])) {
+    $variables['#attached']['library'][] = 'sra/profile-styling';
+  }
+  elseif ($path_args[1] == 'node' && (is_numeric($path_args[2]) && \Drupal\node\Entity\Node::load($path_args[2])->type->entity->get('type') == 'announcement')) {
+    $variables['#attached']['library'][] = 'sra/profile-styling';
+  }
+  elseif ($path_args[1] == 'node' && !empty($path_args[2]) && $path_args[2] == 'add' && !empty($path_args[3]) && $path_args[3] == 'announcement') {
+    $variables['#attached']['library'][] = 'sra/profile-styling';
+  }
+}
+
+/**
+ * Implements hook_theme_preprocess_views_view_unformatted().
+ */
+function sra_preprocess_views_view(&$vars) {
+  $view = $vars['view'];
+  $id = $vars['view']->storage->id();
+  $rows = $vars['rows'];
+  $view_id = $vars['display_id'] = $view->current_display;
+  if ($id == 'node_functions') {
+    if ($view_id == 'page_2') {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $path_args = explode('/', $current_path);
+      $vars['arg_1'] = $path_args[1];
+      $vars['arg_path_2'] = $path_args[2];
+    }
+    if ($view_id == 'page_7') {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $path_args = explode('/', $current_path);
+      $vars['arg_1'] = $path_args[1];
+      $vars['arg_path_7'] = $path_args[2];
+    }
+    if ($view_id == 'page_6') {
+      // kint($vars);
+      if ($vars['view_array']['#arguments'] = '10') {
+        $request = \Drupal::request();
+        if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+          $route->setDefault('_title', ucwords($vars['view_array']['#title']['#markup']));
+          $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+          // kint($title);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_preprocess_views_view_unformatted().
+ */
+function sra_preprocess_views_view_unformatted(&$vars) {
+  $view = $vars['view'];
+  $id = $vars['view']->storage->id();
+  $rows = $vars['rows'];
+  $view_id = $vars['display_id'] = $view->current_display;
+  if ($id == 'node_functions') {
+    if ($view_id == 'page_geographical_scope') {
+      $vid = 'region_country';
+      $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+      $field_conllection = Drupal::entityTypeManager()->getStorage('field_collection_item');
+      $terms_parents = $taxonomy->loadTree($vid, 0, 1);
+      $i = 0;
+      foreach ($terms_parents as $term) {
+        $i++;
+        foreach ($taxonomy->loadChildren($term->tid) as $tid => $term_child) {
+          
+          $arr_temr_child[] = array(
+            "id" => $tid,
+            "name" => $term_child->get('name')->value,
+            'field_iso_code' => strtolower($term_child->get('field_iso_code')->value),
+            'class' => str_replace(array(' / ', ' '), '-', strtolower($term_child->get('name')->value)),
+          );
+          $vars['arr_temr_child'] = $arr_temr_child;
+        }
+        $arr_temr_child = array();
+        
+        $term_parents_data[] = array(
+          "id" => $term->tid,
+          "name" => $term->name,
+          'class' => str_replace(array(' / ', ' '), '-', strtolower($term->name)),
+          'terms' => $vars['arr_temr_child'],
+        );
+        $vars['arr_term_country'] = $term_parents_data;
+      }
+      $region = array();
+      $comment = array();
+      $comment2 = array();
+      $arr_field = array();
+      foreach ($rows as $row) {
+        foreach ($row['content']['#row']->_entity->getFields()['field_region_country']->getValue() as $term) {
+          $region[] = $term['target_id'];
+        }
+        foreach ($row['content']['#row']->_entity->getFields()['field_special_comment']->getValue() as $key => $item) {
+          $comment_entity = $field_conllection->load($item['value']);
+          $comment2{$item['value']}['field_comment'] = $comment_entity->getFields()['field_comment']->getValue()[0]['value'];
+          foreach ($comment_entity->getFields()['field_region_country']->getValue() as $term_country) {
+            $comment{$term_country['target_id']} = $comment_entity->getFields()['field_comment']->getValue()[0]['value'];
+            $comment2{$item['value']}['field_region_country'][] = $term_country['target_id'];
+          }
+        }
+        $arr_field{$row['content']['#row']->_entity->id()}['#arr_region'] = $region;
+        $arr_field{$row['content']['#row']->_entity->id()}['#arr_comment'] = $comment;
+        $arr_field{$row['content']['#row']->_entity->id()}['#arr_comment2'] = $comment2;
+        $region = array();
+        $comment = array();
+        $comment2 = array();
+      }
+      $vars['row_field'] = $arr_field;
+    }
+    elseif ($view_id == 'page_2') {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $path_args = explode('/', $current_path);
+      $vars['arg_1'] = $path_args[1];
+      $vars['arg_path_2'] = $path_args[2];
+    }
+    elseif ($view_id == 'page_governance') {
+      $current_path = \Drupal::service('path.current')->getPath();
+      $vars['current_path'] = $current_path;
+      $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+      $taxonomy = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+      if (in_array('administrator', $user->getRoles()) || in_array('siteadmin', $user->getRoles())) {
+        $vars['is_check_roles'] = $roles = 1;
+      }
+      else {
+        $vars['is_check_roles'] = $roles = 0;
+      }
+      $results = array();
+      $row_item = array();
+      foreach ($rows as $row) {
+        foreach ($row['content']['#row']->_entity->getFields() as $key => $row_field) {
+          if (!empty($row_field->getValue()[0]['target_id'])) {
+            $row_item{$key} = $row_field->getValue()[0]['target_id'];
+          }
+          elseif (!empty($row_field->getValue()[0]['value'])) {
+            $row_item{$key} = $row_field->getValue()[0]['value'];
+          }
+        }
+        
+        if (!isset($row['content']['#row']->_entity->getFields()['field_committee']->getValue()[0])) {
+          continue;
+        }
+        
+        $committee_entity = $taxonomy->load($row['content']['#row']->_entity->getFields()['field_committee']->getValue()[0]['target_id']);
+        
+        $results{$row['content']['#row']->_entity->getFields()['field_committee']->getValue()[0]['target_id']}['label'] = $committee_entity->getName();
+        $results{$row['content']['#row']->_entity->getFields()['field_committee']->getValue()[0]['target_id']}[] = $row_item;
+        $row_item = array();
+      }
+      
+      $vars['results'] = $results;
+    }
+  }
+}

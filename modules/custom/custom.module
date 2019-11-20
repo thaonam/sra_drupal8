@@ -1,0 +1,570 @@
+<?php
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\image\Entity\ImageStyle;
+use Drupal\node\Entity\Node;
+use Drupal\user\Entity\User;
+use Drupal\webform\WebformSubmissionInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
+/**
+ * @file
+ * Giai Điệu customization module.
+ */
+
+/**
+ * Implements hook_cron().
+ */
+function custom_cron() {
+  $arr_node_send = \Drupal::service('custom.send_email_expiry')->load();
+
+  foreach ($arr_node_send as $node) {
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'custom';
+    $key = 'create_announcement';
+    $to = $node->getOwner()->getEmail();
+    $options = ['absolute' => TRUE];
+    $url = \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $node->id()], $options);
+    $url = $url->toString();
+    $host = \Drupal::request()->getHost();
+    $params['message'] = 'Hi ' . $node->getOwner()->getUsername() . ', <br>';
+    $params['message'] .= 'You have the "Member" role in the ' . $host . ' to expire soon. Please login and renew membership.';
+    $params['node_link'] = $url;
+    $params['nid'] = $node->id();
+
+    $langcode = \Drupal::currentUser()->getPreferredLangcode();
+    $send = TRUE;
+    $reply = NULL;
+
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, $reply, $send);
+    if ($result['result'] !== TRUE) {
+      drupal_set_message(t('There was a problem sending your message and it was not sent.'), 'error');
+    } else {
+      drupal_set_message(t('Your message has been sent.'));
+    }
+  }
+}
+
+/**
+ * Implements hook_help().
+ */
+function custom_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+  // Main module help for the custom module.
+  case 'help.page.custom':
+    $output = '';
+    $output .= '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('How to send an email programmatically') . '</p>';
+    return $output;
+
+  default:
+  }
+}
+/**
+ * Implements hook_theme().
+ */
+function custom_theme($existing, $type, $theme, $path) {
+  return array(
+    'submission_pdf_invoice' => array(
+      'variables' => array('items' => array(), 'title' => ''),
+    ),
+    'profile_user' => array(
+      'variables' => array('items' => array(), 'title' => ''),
+    ),
+    'notification_announcement' => array(
+      'variables' => array('items' => array(), 'title' => ''),
+    ),
+    'webform_submission_notification' => array(
+      'variables' => array('items' => array(), 'title' => ''),
+    ),
+    'send_email_notification' => array(
+      'variables' => array('items' => array(), 'title' => ''),
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function custom_preprocess_html(&$variables) {
+  $path = \Drupal::service('path.current')->getPath();
+  $path_args = explode('/', $path);
+  if (isset($path_args[1]) && isset($path_args[2]) && ($path_args[1] == 'node') && (is_numeric($path_args[2]))) {
+    $variables['attributes']['class'][] = 'page-node-' . $path_args[2];
+  }
+}
+
+function custom_link_alter(&$variables) {
+  if ($variables['text'] == 'Log in') {
+    $variables['text'] = t('Members Login');
+  }
+}
+
+/**
+ * Implements hook_preprocess_webform_submission().
+ */
+function custom_preprocess_webform_submission(&$variables) {
+  $variables['sid'] = $variables['webform_submission']->get('sid')->getValue()[0]['value'];
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function custom_page_attachments(array &$attachments) {
+  // Add custom.js to every page.
+  $attachments['#attached']['library'][] = 'custom/custom';
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function custom_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'user_login_form') {
+    $form['#prefix'] = '<div class="members-login"><div class="block-title">Members login</div>';
+    $form['#suffix'] = '<div class="first create-user"><a href="/join-member" title="Create a new member account.">Click here to find out how to join us</a></div></div>';
+  }
+
+  if ($form_id == 'webform_submission_ordinary_member_add_form') {}
+  if ($form_id == 'node_member_companies_edit_form') {
+    $form['field_expiry_date']['#access'] = FALSE;
+    $form['field_renewal']['#access'] = FALSE;
+  }
+  if ($form_id == 'change_pwd_form') {
+    $form['#prefix'] = '<div class="members-reset"><div class="block-title">Reset Password</div>';
+    $form['#suffix'] = '</div>';
+  }
+
+}
+/**
+ * Implements hook_user_login().
+ */
+function custom_user_login($account) {
+  $current_route = \Drupal::routeMatch()->getRouteName();
+  if ($current_route == 'change_pwd_page.reset') {
+    $member_companies = views_get_view_result('node_functions', 'block_25');
+    if (!empty($member_companies)) {
+      foreach ($member_companies as $data) {
+        $entity = $data->_entity;
+        $title = $entity->getTitle();
+        if (!empty($entity->get('field_expiry_date')->value)) {
+          $entity->set('field_expiry_date', date("Y-m-d", strtotime($entity->get('field_expiry_date')->value . " + 1 year")));
+        } else {
+          $entity->set('field_expiry_date', date("Y-m-d", strtotime(date("Y-m-d", $entity->get('changed')->value) . " + 1 year")));
+        }
+        $entity->setPublished();
+        $entity->save();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function custom_preprocess_page(&$variables) {
+
+  // Retrieve an array which contains the path pieces.
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_args = explode('/', $current_path);
+  $current_user = \Drupal::currentUser();
+  $account = \Drupal\user\Entity\User::load($current_user->id());
+
+  if (!empty($current_user->id()) && !($account->hasRole('administrator')) && !($account->hasRole('webmaster')) && !($account->hasRole('siteadmin'))) {
+    $variables['role_access'] = 'member';
+    if ($path_args[1] == 'user' && $path_args[2] == $current_user->id() && empty($path_args[3])) {
+      $variables['current_page_user'] = 'page_user';
+    }
+    $view_member_companies = views_get_view_result('node_functions', 'block_23');
+    $variables['link_member_companies'] = '/node/' . $view_member_companies[0]->nid . '/edit';
+    if ($path_args[1] == 'user' && $path_args[2] != 'login' && $path_args[2] != 'logout') {
+      $variables['current_page'] = 'user_profile';
+      $variables['account_name'] = !empty($account->field_full_name->getValue()) ? $account->field_full_name->getValue()[0]['value'] : '';
+      $variables['account_picture'] = (!empty($account->user_picture->entity)) ? ImageStyle::load('image_70x70')->buildUrl($account->user_picture->entity->getFileUri()) : '';
+      $variables['account_email'] = (!empty($account->mail->getValue())) ? $account->mail->getValue()[0]['value'] : '';
+    }
+    //node/add/announcement
+    elseif ($path_args[1] == 'node' && !empty($path_args[2]) && $path_args[2] == 'add' && !empty($path_args[3]) && $path_args[3] == 'announcement') {
+      $variables['current_page'] = 'user_profile';
+      $variables['account_name'] = !empty($account->field_full_name->getValue()) ? $account->field_full_name->getValue()[0]['value'] : '';
+      $variables['account_picture'] = (!empty($account->user_picture->entity)) ? ImageStyle::load('image_70x70')->buildUrl($account->user_picture->entity->getFileUri()) : '';
+      $variables['account_email'] = (!empty($account->mail->getValue())) ? $account->mail->getValue()[0]['value'] : '';
+    } elseif ($path_args[1] == 'node' && is_numeric($path_args[2]) && \Drupal\node\Entity\Node::load($path_args[2])->type->entity->get('type') == 'member_companies' && !empty($path_args[3])) {
+      $variables['current_page'] = 'user_profile';
+      $variables['account_name'] = !empty($account->field_full_name->getValue()) ? $account->field_full_name->getValue()[0]['value'] : '';
+      $variables['account_picture'] = (!empty($account->user_picture->entity)) ? ImageStyle::load('image_70x70')->buildUrl($account->user_picture->entity->getFileUri()) : '';
+      $variables['account_email'] = (!empty($account->mail->getValue())) ? $account->mail->getValue()[0]['value'] : '';
+    } elseif ($path_args[1] == 'node' && (is_numeric($path_args[2]) && \Drupal\node\Entity\Node::load($path_args[2])->type->entity->get('type') == 'announcement')) {
+      $variables['current_page'] = 'user_profile';
+      $variables['account_name'] = !empty($account->field_full_name->getValue()) ? $account->field_full_name->getValue()[0]['value'] : '';
+      $variables['account_picture'] = (!empty($account->user_picture->entity)) ? ImageStyle::load('image_70x70')->buildUrl($account->user_picture->entity->getFileUri()) : '';
+      $variables['account_email'] = (!empty($account->mail->getValue())) ? $account->mail->getValue()[0]['value'] : '';
+    } else {
+      $variables['current_page'] = '';
+    }
+  } else {
+    $variables['role_access'] = 'admin';
+  }
+}
+
+/**
+ * Implements hook_preprocess_entity_print().
+ */
+function custom_preprocess_entity_print(array &$variables) {
+  $webform_submission = _webform_entity_print_preprocess_entity_print_get_webform_submission($variables['content']);
+  if (!$webform_submission) {
+    return;
+  }
+  $webform = $webform_submission->getWebform();
+  // Add webform entity print CSS.
+  /** @var \Drupal\webform\WebformThirdPartySettingsManagerInterface $third_party_settings_manager */
+  $third_party_settings_manager = \Drupal::service('webform.third_party_settings_manager');
+  // Append default print template CSS.
+  $default_template = $third_party_settings_manager->getThirdPartySetting('webform_entity_print', 'template') ?: [];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function custom_mail($key, &$message, $params) {
+  $options = array(
+    'langcode' => $message['langcode'],
+  );
+
+  switch ($key) {
+  case 'create_announcement':
+    $message['from'] = \Drupal::config('system.site')->get('mail');
+    $message['subject'] = t('@title', array('@title' => $params['node_title']), $options);
+    $message['body'][] = $params['message'];
+    $message['body'][] = $params['node_link'];
+    break;
+  case 'submission_notification':
+    $message['from'] = \Drupal::config('system.site')->get('mail');
+    $message['subject'] = t('@title', array('@title' => $params['submisstion_title']), $options);
+    $message['body'][] = $params['message'];
+    break;
+  }
+}
+
+/**
+ * Implements hook_webform_submission_view_alter().
+ */
+function custom_webform_submission_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  $is_entity_print = in_array($route_name, ['entity_print.view.debug', 'entity_print.view']) || \Drupal::request()->request->get('_webform_entity_print');
+  if ($is_entity_print) {
+    // Add template header and footer.
+    _webform_entity_print_webform_submission_template($build, $entity, $display);
+  } elseif (in_array($display->getMode(), ['html', 'table'])) {
+    // Add print links to HTML and Table mode.
+    _webform_entity_print_webform_submission_links($build, $entity, $display);
+  }
+}
+/**
+ * Implements hook_webform_element_alter().
+ *
+ * @param array              $element
+ * @param FormStateInterface $form_state
+ * @param array              $context
+ */
+function custom_webform_element_alter(array &$element, FormStateInterface $form_state, array $context) {
+  // check for desired element
+  if (isset($element['#webform_id']) && $element['#webform_id'] === 'oridinary_member--email_address_chief') {
+    $element['#element_validate'][] = array('Drupal\custom\Validate\CheckEmailByAccount', 'validate');
+  }
+}
+
+/**
+ * Implements hook_preprocess_webform_submission_data().
+ */
+function custom_preprocess_webform_submission_data(array &$variables) {
+  global $base_url;
+
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $webform_submission = $variables['webform_submission'] = $variables['elements']['#webform_submission'];
+
+  //Get Data form webform print in templates
+  $full_name_of_company = $webform_submission->getData()['full_name_of_company'];
+  $company_registration_no = $webform_submission->getData()['company_registration_no'];
+  $date_of_incorporation_of_company = date('d M Y', strtotime($webform_submission->getData()['date_of_incorporation_of_company']));
+  $address = $webform_submission->getData()['address'];
+  $name_designation = $webform_submission->getData()['name_designation'];
+  $logo = $base_url . '' . file_url_transform_relative(file_create_url(theme_get_setting('logo.url')));
+
+  $content_submission = array(
+    'full_name_of_company' => $full_name_of_company,
+    'company_registration_no' => $company_registration_no,
+    'date_of_incorporation_of_company' => $date_of_incorporation_of_company,
+    'address' => $address,
+    'name_designation' => $name_designation,
+    'logo' => $logo,
+  );
+  $template = [
+    '#theme' => 'submission_pdf_invoice',
+    '#title' => 'Demo1',
+    '#items' => $content_submission,
+  ];
+
+  //Render form file twig templates => text/html
+  $render_template = \Drupal::service('renderer')->render($template);
+  print $render_template;
+
+  if ($variables['webform_submission'] instanceof WebformSubmissionInterface) {
+    $variables['webform'] = $variables['webform_submission']->getWebform();
+  }
+}
+
+function custom_preprocess_node(&$variables) {
+
+  if ($variables['node']->getType() == 'member_companies') {
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    //Roles
+    $roles_member = array(
+      'affiliate_member_local_',
+      'ordinary_member',
+      'affiliate_member_overseas_',
+      'honorary_member',
+      'exco_member_',
+      '_technical_sub_committee_member',
+      'education_sub_committee_member',
+      'accounts_sub_committee_member',
+      'social_sub_committee_member',
+      'associate_member_reinsurer_local_',
+      'associate_member_non_reinsurer_local_',
+      'associate_member_reinsurer_overseas_',
+      'associate_member_non_reinsurer_overseas__',
+      'wire_sub_committee_member',
+    );
+    $variables['renewal_check'] = FALSE;
+    $roles_admin = array('webmaster', 'siteadmin', 'administrator');
+    if (count(array_intersect($user->getRoles(), $roles_member)) > 0) {
+      $variables['renewal_check'] = TRUE;
+    }
+    if (count(array_intersect($user->getRoles(), $roles_admin)) > 0 && $variables['node']->get('field_renewal')->value == '1') {
+      $variables['renewal_check'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function custom_node_insert(\Drupal\Core\Entity\EntityInterface $node) {
+
+  global $base_url;
+
+  if ($node->bundle() == 'announcement') {
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    $roles = array(
+      'affiliate_member_local_',
+      'ordinary_member',
+      'affiliate_member_overseas_',
+      'honorary_member',
+      'exco_member_',
+      '_technical_sub_committee_member',
+      'education_sub_committee_member',
+      'accounts_sub_committee_member',
+      'social_sub_committee_member',
+      'associate_member_reinsurer_local_',
+      'associate_member_non_reinsurer_local_',
+      'associate_member_reinsurer_overseas_',
+      'associate_member_non_reinsurer_overseas__',
+      'wire_sub_committee_member',
+    );
+
+    if (count(array_intersect($user->getRoles(), $roles)) > 0) {
+      $path = $base_url . '/announcement/' . $node->id() . '/notification';
+      $response = new RedirectResponse($path);
+      $response->send();
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function custom_node_update(\Drupal\Core\Entity\EntityInterface $node) {
+  global $base_url;
+
+  if ($node->bundle() == 'announcement') {
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    //Roles
+    $roles_member = array(
+      'affiliate_member_local_',
+      'ordinary_member',
+      'affiliate_member_overseas_',
+      'honorary_member',
+      'exco_member_',
+      '_technical_sub_committee_member',
+      'education_sub_committee_member',
+      'accounts_sub_committee_member',
+      'social_sub_committee_member',
+      'associate_member_reinsurer_local_',
+      'associate_member_non_reinsurer_local_',
+      'associate_member_reinsurer_overseas_',
+      'associate_member_non_reinsurer_overseas__',
+      'wire_sub_committee_member',
+    );
+    $roles_admin = array('webmaster', 'siteadmin', 'administrator');
+    //User is member
+    if (count(array_intersect($user->getRoles(), $roles_member)) > 0) {
+      $path = $base_url . '/announcement/' . $node->id() . '/notification';
+      $response = new RedirectResponse($path);
+      $response->send();
+    }
+
+    //User is site-admin
+    if (count(array_intersect($user->getRoles(), $roles_admin)) > 0) {
+      //Announcement is approve
+      if ($node->get('status')->value == 1) {
+        $mailManager = \Drupal::service('plugin.manager.mail');
+        $module = 'custom';
+        $key = 'create_announcement';
+        $to = $node->getOwner()->getEmail();
+        $options = ['absolute' => TRUE];
+        $url = \Drupal\Core\Url::fromRoute('entity.node.edit_form', ['node' => '123'], $options);
+        $url = $url->toString();
+
+        $params['message'] = 'Hi, <br>';
+        $params['message'] .= 'Your announcement has been successfully approved by the administrator';
+        $params['node_title'] = "Notice of approval for posting an announcement on Member’s Announcement Page";
+        $params['node_link'] = $url;
+        $params['nid'] = $node->id();
+
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+        $send = TRUE;
+        $reply = NULL;
+
+        $result = $mailManager->mail($module, $key, $to, $langcode, $params, $reply, $send);
+        if ($result['result'] !== TRUE) {
+          drupal_set_message(t('There was a problem sending your message and it was not sent.'), 'error');
+        } else {
+          drupal_set_message(t('Your message has been sent.'));
+        }
+      } else {
+        $mailManager = \Drupal::service('plugin.manager.mail');
+        $module = 'custom';
+        $key = 'create_announcement';
+        $to = $node->getOwner()->getEmail();
+        $options = ['absolute' => TRUE];
+        $params['message'] = 'Hi, <br>';
+        $params['message'] .= 'Your announcement has been rejected by the administrator';
+        $params['node_title'] = "Notice of approval for posting an announcement on Member’s Announcement Page";
+        $params['node_link'] = '';
+        $params['nid'] = $node->id();
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+        $send = TRUE;
+        $reply = NULL;
+
+        $result = $mailManager->mail($module, $key, $to, $langcode, $params, $reply, $send);
+        if ($result['result'] !== TRUE) {
+          drupal_set_message(t('There was a problem sending your message and it was not sent.'), 'error');
+        } else {
+          drupal_set_message(t('Your message has been sent.'));
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function custom_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->getEntityTypeId() == 'node' && $entity->bundle() == 'announcement') {
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    $roles = array(
+      'affiliate_member_local_',
+      'ordinary_member',
+      'affiliate_member_overseas_',
+      'honorary_member',
+      'exco_member_',
+      '_technical_sub_committee_member',
+      'education_sub_committee_member',
+      'accounts_sub_committee_member',
+      'social_sub_committee_member',
+      'associate_member_reinsurer_local_',
+      'associate_member_non_reinsurer_local_',
+      'associate_member_reinsurer_overseas_',
+      'associate_member_non_reinsurer_overseas__',
+      'wire_sub_committee_member',
+    );
+    if (count(array_intersect($user->getRoles(), $roles)) > 0) {
+      $entity->setUnpublished();
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function custom_entity_update($entity) {
+
+  global $base_url;
+  if ($entity->getEntityTypeId() == 'webform_submission') {
+    if ($entity->getData()['confirm'] == 'Approved') {
+      // 'email_address_chief'
+      if (user_load_by_mail($entity->getData()['email_address_chief']) != FALSE or user_load_by_name($entity->getData()['email_address_chief']) != FALSE) {
+        drupal_set_message(t('Your email already exists in the user system'));
+        return;
+      } else {
+        $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+        $user = \Drupal\user\Entity\User::create();
+
+        if ($entity->getWebform()->id() == 'affiliate_member') {
+          $rid = 'affiliate_member_local_';
+        } elseif ($entity->getWebform()->id() == 'ordinary_member') {
+          $rid = 'ordinary_member';
+        } elseif ($entity->getWebform()->id() == 'associate_member') {
+          $rid = 'associate_member';
+        }
+
+        // Mandatory.
+        $user->setPassword('12345678');
+        $user->enforceIsNew();
+        $user->setEmail($entity->getData()['email_address_chief']);
+        $user->setUsername($entity->getData()['email_address_chief']);
+
+        // Optional.
+        $user->set('init', $entity->getData()['email_address_chief']);
+        $user->set('langcode', $language);
+        $user->set('preferred_langcode', $language);
+        $user->set('preferred_admin_langcode', $language);
+        // $user->set('setting_name', 'setting_value');
+        $user->addRole($rid);
+        $user->activate();
+
+        // Save user account.
+        if ($user->save()) {
+          $node = Node::create(['type' => 'member_companies']);
+          $node->set('title', $entity->getData()['full_name_of_company']);
+
+          //Body can now be an array with a value and a format.
+          //If body field exists.
+          $body = [
+            'value' => $entity->getData()['address_code']['address'],
+          ];
+          $node->set('field_company', $entity->getData()['full_name_of_company']);
+          $node->set('field_company_type', $entity->getWebform()->id());
+          $node->set('field_facsimile', $entity->getData()['fax']);
+          $node->set('field_tel', $entity->getData()['tel']);
+          $node->set('field_website_link', $entity->getData()['website_url']);
+          $node->set('field_chief_representative', $entity->getData()['nationality_chief']);
+          $node->set('field_sra_member_since', $entity->getData()['date_of_incorporation_of_company']);
+          $node->set('body', $body);
+          $node->set('uid', $user->id());
+          $node->status = 0;
+          $node->enforceIsNew();
+          $node->save();
+
+          $path = $base_url . '/admin/structure/webform/manage/' . $entity->getWebform()->id() . '/submission/' . $entity->id() . '/' . $user->id();
+          $response = new RedirectResponse($path);
+          $response->send();
+        }
+      }
+    }
+  }
+}

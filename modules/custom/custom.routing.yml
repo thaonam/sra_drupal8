@@ -1,0 +1,67 @@
+custom.submission_template_pdf:
+  path: "/custom/approve/submision/{submission_id}"
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_submission_template_pdf'
+  requirements:
+    _permission: "access content"
+
+custom.submission_send_email:
+  path: "/custom/submission_send_mail/{submission_id}"
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_submission_send_mail'
+  requirements:
+    _permission: "access content"
+
+custom.profile_user:
+  path: "user/profile"
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_profile_user'
+    _title: "Profile User"
+  requirements:
+    _role: "affiliate_member_local_ + ordinary_member + affiliate_member_overseas_ + honorary_member + exco_member_ + _technical_sub_committee_member + education_sub_committee_member + accounts_sub_committee_member + social_sub_committee_member + associate_member_reinsurer_local_ + associate_member_non_reinsurer_local_ + associate_member_reinsurer_overseas_ + associate_member_non_reinsurer_overseas__ + wire_sub_committee_member"
+
+custom.notification_announcement:
+  path: "announcement/{node_announcement_id}/notification"
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_notification_announcement'
+    _title: "Notification"
+  requirements:
+    _permission: "access content"
+custom.notification_email:
+  path: "send/notification"
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_send_email_notification'
+    _title: "Notification"
+  requirements:
+    _permission: "access content"
+
+custom/webform_submission_notification:
+  path: "admin/structure/webform/manage/{webform_id}/submission/{submission_id}/{user_new_id}"
+  defaults:
+    _controller: '\Drupal\custom\Controller\customController::custom_webform_submission_notification'
+    _title: "Notification Submission"
+  requirements:
+    _permission: "access content"
+    _role: "administrator + sideadmin + webmaster"
+
+custom.custom_renew_membership_form:
+  path: "/renew-membership-form/{node_member_companies}"
+  defaults:
+    _form: '\Drupal\custom\Form\RenewMembershipForm'
+    _title: "Renew Membership Form"
+  requirements:
+    _permission: "access content"
+  options:
+    parameters:
+      node_member_companies:
+        type: entity:node
+
+custom.custom_email_send_form:
+  path: "/admin/config/custom/custom-email-send"
+  defaults:
+    _form: '\Drupal\custom\Form\EmailSend'
+    _title: "Email Send"
+  requirements:
+    _permission: "access administration pages"
+  options:
+    _admin_route: TRUE

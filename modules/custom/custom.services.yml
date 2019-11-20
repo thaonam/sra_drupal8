@@ -1,0 +1,5 @@
+  
+services:
+  custom.send_email_expiry:
+    class: \Drupal\custom\SendEmailExpiryService
+    arguments: ["@entity_type.manager"]
